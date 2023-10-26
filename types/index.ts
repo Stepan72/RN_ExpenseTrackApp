@@ -1,9 +1,9 @@
 export type StackParamList = {
-  AllExpenses: undefined;
-  Second: undefined;
+  ManageExpense: undefined;
+  ExpensesOverview: undefined;
 };
 
 export type TabsParamList = {
-  Welcome: undefined;
-  User: undefined;
+  AllExpenses: undefined;
+  RecentExpenses: undefined;
 };
