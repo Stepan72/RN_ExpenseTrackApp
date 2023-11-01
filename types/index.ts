@@ -1,5 +1,5 @@
 export type StackParamList = {
-  ManageExpense: undefined;
+  ManageExpense: SingleExpense;
   ExpensesOverview: undefined;
 };
 
