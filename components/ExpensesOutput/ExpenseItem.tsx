@@ -58,9 +58,6 @@ export default function ExpenseItem({
 
   const expensePressHandler = () => {
     navigation.navigate("ManageExpense", {
-      description,
-      amount,
-      date,
       id,
     });
   };

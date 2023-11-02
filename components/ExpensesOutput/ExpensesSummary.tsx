@@ -13,8 +13,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   period: {
-    fontSize: 12,
+    fontSize: 18,
     color: GlobalStyles.colors.primary400,
+    fontWeight: "bold",
   },
   sum: {
     fontSize: 16,
