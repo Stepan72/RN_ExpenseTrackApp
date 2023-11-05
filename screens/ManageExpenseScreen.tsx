@@ -1,10 +1,11 @@
 import { View, Text, StyleSheet } from "react-native";
-import React, { useLayoutEffect } from "react";
+import React, { useContext, useLayoutEffect } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { StackParamList } from "../types";
 import IconButton from "../components/UI/IconButton";
 import { GlobalStyles } from "../constants/style";
 import CustomButton from "../components/UI/CustomButton";
+import { ExpensesContext } from "../store/expenses-context";
 
 type ManageExpenseScreenProps = NativeStackScreenProps<
   StackParamList,
@@ -18,6 +19,8 @@ export default function ManageExpenseScreen({
   const expenseId = route.params?.id;
   const isEditing = !!expenseId;
 
+  const expensesCtx = useContext(ExpensesContext);
+
   useLayoutEffect(() => {
     navigation.setOptions({
       title: isEditing ? `Edit Expense` : "Add Expense",
@@ -26,6 +29,7 @@ export default function ManageExpenseScreen({
 
   const deleteExpenseHandler = () => {
     navigation.goBack();
+    expensesCtx.deleteExpense(expenseId);
   };
 
   const cancelHandler = () => {
@@ -33,6 +37,19 @@ export default function ManageExpenseScreen({
   };
 
   const confirmHandler = () => {
+    if (isEditing) {
+      expensesCtx.updateExpense(expenseId, {
+        description: "TestUpdate",
+        amount: 1,
+        date: new Date(),
+      });
+    } else {
+      expensesCtx.addExpense({
+        description: "Test",
+        amount: 1,
+        date: new Date(),
+      });
+    }
     navigation.goBack();
   };
 
