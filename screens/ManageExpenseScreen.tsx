@@ -6,6 +6,7 @@ import IconButton from "../components/UI/IconButton";
 import { GlobalStyles } from "../constants/style";
 import CustomButton from "../components/UI/CustomButton";
 import { ExpensesContext } from "../store/expenses-context";
+import ExpenseForm from "../components/ManageExpense/ExpenseForm";
 
 type ManageExpenseScreenProps = NativeStackScreenProps<
   StackParamList,
@@ -55,6 +56,7 @@ export default function ManageExpenseScreen({
 
   return (
     <View style={styles.container}>
+      <ExpenseForm />
       <View style={styles.buttonsContainer}>
         <CustomButton
           buttonText="Cancel"
