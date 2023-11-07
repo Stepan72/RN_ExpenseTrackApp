@@ -1,12 +1,12 @@
 import { View, Text, StyleSheet } from "react-native";
 import React, { useContext, useLayoutEffect } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { StackParamList } from "../types";
+import { SingleExpense, StackParamList } from "../types";
 import IconButton from "../components/UI/IconButton";
 import { GlobalStyles } from "../constants/style";
-import CustomButton from "../components/UI/CustomButton";
 import { ExpensesContext } from "../store/expenses-context";
 import ExpenseForm from "../components/ManageExpense/ExpenseForm";
+import { AddExpenseProps } from "../store/expenses-context";
 
 type ManageExpenseScreenProps = NativeStackScreenProps<
   StackParamList,
@@ -37,39 +37,23 @@ export default function ManageExpenseScreen({
     navigation.goBack();
   };
 
-  const confirmHandler = () => {
+  const confirmHandler = (expenseData: SingleExpense | AddExpenseProps) => {
     if (isEditing) {
-      expensesCtx.updateExpense(expenseId, {
-        description: "TestUpdate",
-        amount: 1,
-        date: new Date(),
-      });
+      expensesCtx.updateExpense(expenseId, expenseData);
     } else {
-      expensesCtx.addExpense({
-        description: "Test",
-        amount: 1,
-        date: new Date(),
-      });
+      expensesCtx.addExpense(expenseData);
     }
     navigation.goBack();
   };
 
   return (
     <View style={styles.container}>
-      <ExpenseForm />
-      <View style={styles.buttonsContainer}>
-        <CustomButton
-          buttonText="Cancel"
-          mode="flat"
-          onPress={cancelHandler}
-          style={styles.button}
-        />
-        <CustomButton
-          buttonText={isEditing ? "Update" : "Add"}
-          onPress={confirmHandler}
-          style={styles.button}
-        />
-      </View>
+      <ExpenseForm
+        isEditing={isEditing}
+        onCancel={cancelHandler}
+        onSubmit={confirmHandler}
+      />
+
       {isEditing && (
         <View style={styles.deleteContainer}>
           <IconButton
@@ -90,15 +74,7 @@ const styles = StyleSheet.create({
     padding: 24,
     backgroundColor: GlobalStyles.colors.primary800,
   },
-  buttonsContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  button: {
-    minWidth: 120,
-    marginHorizontal: 8,
-  },
+
   deleteContainer: {
     marginTop: 16,
     paddingTop: 8,

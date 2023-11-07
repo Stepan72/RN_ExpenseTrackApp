@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { SingleExpense } from "../types";
 import { DUMMY_EXPENSES } from "../constants/dummyExpenses";
 
-interface AddExpenseProps {
+export interface AddExpenseProps {
   amount: number;
   description: string;
   date: Date;
