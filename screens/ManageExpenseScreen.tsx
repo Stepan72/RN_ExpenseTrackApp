@@ -21,6 +21,9 @@ export default function ManageExpenseScreen({
   const isEditing = !!expenseId;
 
   const expensesCtx = useContext(ExpensesContext);
+  const selectedExpense = expensesCtx.expenses.find(
+    (el) => el.id === expenseId
+  );
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -52,6 +55,7 @@ export default function ManageExpenseScreen({
         isEditing={isEditing}
         onCancel={cancelHandler}
         onSubmit={confirmHandler}
+        defaultValues={selectedExpense}
       />
 
       {isEditing && (

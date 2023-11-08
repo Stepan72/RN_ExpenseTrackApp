@@ -1,24 +1,28 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Alert } from "react-native";
 import Input from "./Input";
 import React, { useState } from "react";
 import CustomButton from "../UI/CustomButton";
 import { AddExpenseProps } from "../../store/expenses-context";
+import { SingleExpense } from "../../types";
+import { getFormattedDate } from "../../util/date";
 
 interface ExpenseFormProps {
   isEditing: boolean;
   onCancel: () => void;
   onSubmit: (expenseData: AddExpenseProps) => void;
+  defaultValues?: SingleExpense;
 }
 
 export default function ExpenseForm({
   isEditing,
   onCancel,
   onSubmit,
+  defaultValues,
 }: ExpenseFormProps) {
   const [inputValues, setInputValues] = useState({
-    amount: "",
-    date: "",
-    description: "",
+    amount: defaultValues ? defaultValues.amount.toString() : "",
+    date: defaultValues ? getFormattedDate(defaultValues.date) : "",
+    description: defaultValues ? defaultValues.description : "",
   });
 
   const inputChangeHandler = (identifier: string, enteredValue: string) => {
@@ -28,7 +32,6 @@ export default function ExpenseForm({
         [identifier]: enteredValue,
       };
     });
-    console.log(identifier, enteredValue);
   };
 
   const submitHandler = () => {
@@ -38,7 +41,15 @@ export default function ExpenseForm({
       description: inputValues.description,
     };
 
-    onSubmit(expenseData);
+    const amountIsValid = !isNaN(expenseData.amount) && expenseData.amount > 0;
+    const dateIsValid = expenseData.date.toString() !== "Invalid Date";
+    const descriptionIsValid = expenseData.description.trim().length > 0;
+
+    if (amountIsValid && dateIsValid && descriptionIsValid) {
+      onSubmit(expenseData);
+    } else {
+      Alert.alert("Input is Invalid!", "Please check input values!");
+    }
   };
 
   return (
@@ -60,7 +71,7 @@ export default function ExpenseForm({
         <Input
           label="Date"
           textInputConfig={{
-            placeholder: "DD-MM-YYYY",
+            placeholder: "YYYY-MM-DD",
             maxLength: 10,
             onChangeText: (value) => {
               inputChangeHandler("date", value);
