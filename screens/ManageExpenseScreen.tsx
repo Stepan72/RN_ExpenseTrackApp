@@ -7,6 +7,7 @@ import { GlobalStyles } from "../constants/style";
 import { ExpensesContext } from "../store/expenses-context";
 import ExpenseForm from "../components/ManageExpense/ExpenseForm";
 import { AddExpenseProps } from "../store/expenses-context";
+import { storeExpense, updateExpense, deleteExpense } from "../util/axios";
 
 type ManageExpenseScreenProps = NativeStackScreenProps<
   StackParamList,
@@ -31,20 +32,26 @@ export default function ManageExpenseScreen({
     });
   }, [navigation, isEditing]);
 
-  const deleteExpenseHandler = () => {
-    navigation.goBack();
+  const deleteExpenseHandler = async () => {
     expensesCtx.deleteExpense(expenseId);
+    await deleteExpense(expenseId);
+    navigation.goBack();
   };
 
   const cancelHandler = () => {
     navigation.goBack();
   };
 
-  const confirmHandler = (expenseData: SingleExpense | AddExpenseProps) => {
+  const confirmHandler = async (
+    expenseData: SingleExpense | AddExpenseProps
+  ) => {
     if (isEditing) {
+      console.log("check IDDD", expenseId);
       expensesCtx.updateExpense(expenseId, expenseData);
+      await updateExpense(expenseId, expenseData);
     } else {
-      expensesCtx.addExpense(expenseData);
+      const id = await storeExpense(expenseData);
+      expensesCtx.addExpense({ ...expenseData, id });
     }
     navigation.goBack();
   };

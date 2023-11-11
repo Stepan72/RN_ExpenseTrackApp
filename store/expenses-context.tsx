@@ -11,7 +11,8 @@ export interface AddExpenseProps {
 
 export const ExpensesContext = createContext({
   expenses: [] as SingleExpense[],
-  addExpense: ({ description, amount, date }: AddExpenseProps) => {},
+  setExpense: (expenses: SingleExpense[]) => {},
+  addExpense: ({ description, amount, date, id }: SingleExpense) => {},
   deleteExpense: (id: string) => {},
   updateExpense: (
     id: string,
@@ -20,15 +21,27 @@ export const ExpensesContext = createContext({
 });
 
 function ExpensesContextProvider({ children }: { children: React.ReactNode }) {
-  const [expensesState, setExpensesState] =
-    useState<SingleExpense[]>(DUMMY_EXPENSES);
+  const [expensesState, setExpensesState] = useState<SingleExpense[]>([]);
 
-  function addExpense({ description, amount, date }: AddExpenseProps) {
+  function addExpense({ description, amount, date, id }: SingleExpense) {
     setExpensesState((prevValue) => {
-      const newId = (Math.random() * 100).toFixed(0);
+      //   const newId = (Math.random() * 100).toFixed(0);
 
-      return [...expensesState, { description, amount, date, id: newId }];
+      return [...expensesState, { description, amount, date, id }].sort(
+        (a, b) => {
+          return a.date.getTime() - b.date.getTime();
+        }
+      );
     });
+  }
+
+  function setExpense(expense: SingleExpense[]) {
+    const sortedInvertExpense = expense.sort((a, b) => {
+      return a.date.getTime() - b.date.getTime();
+    });
+
+    setExpensesState(sortedInvertExpense);
+    // setExpensesState(expense);
   }
 
   function deleteExpense(id: string) {
@@ -41,30 +54,39 @@ function ExpensesContextProvider({ children }: { children: React.ReactNode }) {
   }
 
   function updateExpense(
-    id: string,
+    updatedId: string,
     { description, amount, date }: AddExpenseProps
   ) {
-    const updatebleExpenseIndex = expensesState.findIndex((el) => {
-      return (el.id = id);
-    });
+    // console.log(updatedId);
+    const updatebleExpenseIndex = expensesState.findIndex(
+      (el) => el.id == updatedId
+    );
+    // console.log(updatebleExpenseIndex);
+    // console.log(expensesState);
     const updatebleExpense = expensesState[updatebleExpenseIndex];
+    // console.log(updatebleExpense);
     const updatedExpense = {
       ...updatebleExpense,
       description: description,
       amount: amount,
       date: date,
     };
+    // console.log(updateExpense);
     const filteredExpenseState = expensesState.filter((el) => {
-      return el.id !== id;
+      return el.id !== updatedId;
     });
+    // console.log(filteredExpenseState);
     setExpensesState((prevValue) => {
-      return [...filteredExpenseState, updatedExpense];
+      return [...filteredExpenseState, updatedExpense].sort((a, b) => {
+        return a.date.getDate() - b.date.getDate();
+      });
     });
   }
 
   const contextValue = {
     expenses: expensesState,
     addExpense,
+    setExpense,
     updateExpense,
     deleteExpense,
   };
