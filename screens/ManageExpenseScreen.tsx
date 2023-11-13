@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet } from "react-native";
-import React, { useContext, useLayoutEffect } from "react";
+import React, { useContext, useLayoutEffect, useState } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { SingleExpense, StackParamList } from "../types";
 import IconButton from "../components/UI/IconButton";
@@ -8,6 +8,7 @@ import { ExpensesContext } from "../store/expenses-context";
 import ExpenseForm from "../components/ManageExpense/ExpenseForm";
 import { AddExpenseProps } from "../store/expenses-context";
 import { storeExpense, updateExpense, deleteExpense } from "../util/axios";
+import LoadingOverlay from "../components/UI/LoadingOverlay";
 
 type ManageExpenseScreenProps = NativeStackScreenProps<
   StackParamList,
@@ -21,6 +22,7 @@ export default function ManageExpenseScreen({
   const expenseId = route.params?.id;
   const isEditing = !!expenseId;
 
+  const [isLoading, setIsLoading] = useState(false);
   const expensesCtx = useContext(ExpensesContext);
   const selectedExpense = expensesCtx.expenses.find(
     (el) => el.id === expenseId
@@ -33,6 +35,7 @@ export default function ManageExpenseScreen({
   }, [navigation, isEditing]);
 
   const deleteExpenseHandler = async () => {
+    setIsLoading(true);
     expensesCtx.deleteExpense(expenseId);
     await deleteExpense(expenseId);
     navigation.goBack();
@@ -45,6 +48,7 @@ export default function ManageExpenseScreen({
   const confirmHandler = async (
     expenseData: SingleExpense | AddExpenseProps
   ) => {
+    setIsLoading(true);
     if (isEditing) {
       console.log("check IDDD", expenseId);
       expensesCtx.updateExpense(expenseId, expenseData);
@@ -55,6 +59,10 @@ export default function ManageExpenseScreen({
     }
     navigation.goBack();
   };
+
+  if (isLoading) {
+    return <LoadingOverlay />;
+  }
 
   return (
     <View style={styles.container}>

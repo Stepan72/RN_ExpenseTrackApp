@@ -6,15 +6,20 @@ import { ExpensesContext } from "../store/expenses-context";
 import { getDateMinusDays } from "../util/date";
 import { fetchExpenses } from "../util/axios";
 import { SingleExpense } from "../types";
+import LoadingOverlay from "../components/UI/LoadingOverlay";
+LoadingOverlay;
 
 export default function RecentExpensesScreen() {
+  const [isFetching, setIsFetching] = useState(true);
   const expensesCtx = useContext(ExpensesContext);
   // const [fetchedExpenses, setFetchedExpenses] = useState<SingleExpense[]>([]);
 
   useEffect(() => {
     async function getExpenses() {
+      setIsFetching(true);
       const expenses = await fetchExpenses();
       expensesCtx.setExpense(expenses);
+      setIsFetching(false);
     }
 
     getExpenses();
@@ -35,10 +40,16 @@ export default function RecentExpensesScreen() {
   // });
 
   return (
-    <ExpensesOutput
-      periodName="Last 7 days"
-      expenses={recentExpensesCtx}
-      fallbackText="There is no recent expenses!"
-    />
+    <>
+      {isFetching ? (
+        <LoadingOverlay />
+      ) : (
+        <ExpensesOutput
+          periodName="Last 7 days"
+          expenses={recentExpensesCtx}
+          fallbackText="There is no recent expenses!"
+        />
+      )}
+    </>
   );
 }
