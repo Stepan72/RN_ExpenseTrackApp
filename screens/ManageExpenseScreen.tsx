@@ -9,6 +9,7 @@ import ExpenseForm from "../components/ManageExpense/ExpenseForm";
 import { AddExpenseProps } from "../store/expenses-context";
 import { storeExpense, updateExpense, deleteExpense } from "../util/axios";
 import LoadingOverlay from "../components/UI/LoadingOverlay";
+import ErrorOverlay from "../components/UI/ErrorOverlay";
 
 type ManageExpenseScreenProps = NativeStackScreenProps<
   StackParamList,
@@ -23,6 +24,8 @@ export default function ManageExpenseScreen({
   const isEditing = !!expenseId;
 
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const expensesCtx = useContext(ExpensesContext);
   const selectedExpense = expensesCtx.expenses.find(
     (el) => el.id === expenseId
@@ -36,9 +39,14 @@ export default function ManageExpenseScreen({
 
   const deleteExpenseHandler = async () => {
     setIsLoading(true);
-    expensesCtx.deleteExpense(expenseId);
-    await deleteExpense(expenseId);
-    navigation.goBack();
+    try {
+      await deleteExpense(expenseId);
+      expensesCtx.deleteExpense(expenseId);
+      navigation.goBack();
+    } catch (error) {
+      setError("Couldn't delete data!");
+      setIsLoading(false);
+    }
   };
 
   const cancelHandler = () => {
@@ -49,19 +57,32 @@ export default function ManageExpenseScreen({
     expenseData: SingleExpense | AddExpenseProps
   ) => {
     setIsLoading(true);
-    if (isEditing) {
-      console.log("check IDDD", expenseId);
-      expensesCtx.updateExpense(expenseId, expenseData);
-      await updateExpense(expenseId, expenseData);
-    } else {
-      const id = await storeExpense(expenseData);
-      expensesCtx.addExpense({ ...expenseData, id });
+    try {
+      if (isEditing) {
+        console.log("check IDDD", expenseId);
+        expensesCtx.updateExpense(expenseId, expenseData);
+        await updateExpense(expenseId, expenseData);
+      } else {
+        const id = await storeExpense(expenseData);
+        expensesCtx.addExpense({ ...expenseData, id });
+      }
+      navigation.goBack();
+    } catch (error) {
+      setError("Couldn't send data!");
+      setIsLoading(false);
     }
-    navigation.goBack();
   };
+
+  function errorHandler() {
+    setError(null);
+  }
 
   if (isLoading) {
     return <LoadingOverlay />;
+  }
+
+  if (error && !isLoading) {
+    return <ErrorOverlay message={error} onConfirm={errorHandler} />;
   }
 
   return (

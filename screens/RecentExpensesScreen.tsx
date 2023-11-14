@@ -7,19 +7,26 @@ import { getDateMinusDays } from "../util/date";
 import { fetchExpenses } from "../util/axios";
 import { SingleExpense } from "../types";
 import LoadingOverlay from "../components/UI/LoadingOverlay";
+import ErrorOverlay from "../components/UI/ErrorOverlay";
 LoadingOverlay;
 
 export default function RecentExpensesScreen() {
   const [isFetching, setIsFetching] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const expensesCtx = useContext(ExpensesContext);
   // const [fetchedExpenses, setFetchedExpenses] = useState<SingleExpense[]>([]);
 
   useEffect(() => {
     async function getExpenses() {
       setIsFetching(true);
-      const expenses = await fetchExpenses();
-      expensesCtx.setExpense(expenses);
-      setIsFetching(false);
+      try {
+        const expenses = await fetchExpenses();
+        expensesCtx.setExpense(expenses);
+      } catch (error) {
+        setError("Couldn't fetch expenses! ");
+      } finally {
+        setIsFetching(false);
+      }
     }
 
     getExpenses();
@@ -39,17 +46,23 @@ export default function RecentExpensesScreen() {
   //   return el.date > date7DaysAgo;
   // });
 
+  function errorHandler() {
+    setError(null);
+  }
+
+  if (error && !isFetching) {
+    return <ErrorOverlay message={error} onConfirm={errorHandler} />;
+  }
+
+  if (isFetching) {
+    return <LoadingOverlay />;
+  }
+
   return (
-    <>
-      {isFetching ? (
-        <LoadingOverlay />
-      ) : (
-        <ExpensesOutput
-          periodName="Last 7 days"
-          expenses={recentExpensesCtx}
-          fallbackText="There is no recent expenses!"
-        />
-      )}
-    </>
+    <ExpensesOutput
+      periodName="Last 7 days"
+      expenses={recentExpensesCtx}
+      fallbackText="There is no recent expenses!"
+    />
   );
 }
